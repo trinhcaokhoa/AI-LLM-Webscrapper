@@ -35,3 +35,10 @@ Make sure you have the following installed on your system:
    git clone https://github.com/trinhcaokhoa/AI-Web-Scraper.git
    cd AI-Web-Scraper
 
+2. **Build and run the project using Docker Compose:**
+
+   ```bash
+   docker-compose up --build
+
+   Open your browser and go to http://localhost:8501.
+
