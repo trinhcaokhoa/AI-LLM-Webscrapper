@@ -1,0 +1,31 @@
+version: '3.8'
+
+
+services:
+  ai-web-scrapper:
+    container_name: ai-web-scrapper
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8501:8501"
+    volumes:
+      - .:/app
+    depends_on:
+      - selenium-chrome
+    environment:
+      - PYTHONUNBUFFERED=1
+      - SBR_WEBDRIVER=http://selenium-chrome:4444/wd/hub
+    # Selenium Remote URL http://localhost:4444/wd/hub
+    command: streamlit run main.py
+  selenium-chrome:
+    image: selenium/standalone-chrome:latest
+    container_name: selenium-chrome
+    ports:
+      - "4444:4444"  # Expose Selenium Grid port
+    shm_size: '2gb'  # Shared memory size for Selenium
+
+
+networks:
+  default:
+    driver: bridge
