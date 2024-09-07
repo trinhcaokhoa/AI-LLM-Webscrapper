@@ -23,17 +23,27 @@ services:
 
   ollama:
     image: ollama/ollama:latest
-    container_name: ollama
-    ports:
-      - "11434:11434"  # Expose Ollama service port
     volumes:
       - ./ollama:/root/.ollama  # Persist Ollama models between runs
-    networks:
-      - webnet  # Add Ollama to the same network
-    environment:
-      - OLLAMA_KEEP_ALIVE=24h  # Keep Ollama running for extended periods
+    container_name: ollama
+    pull_policy: always
     tty: true
-    restart: always
+    restart: unless-stopped
+    ports:
+      - 11434:11434
+    environment:
+      - OLLAMA_KEEP_ALIVE=24h
+    networks:
+      - webnet
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [ gpu ]
+
+
 
   selenium-chrome:
     image: selenium/standalone-chrome:latest
