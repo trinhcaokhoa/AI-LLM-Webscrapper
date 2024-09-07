@@ -1,6 +1,5 @@
 version: '3.8'
 
-
 services:
   ai-web-scrapper:
     container_name: ai-web-scrapper
@@ -8,24 +7,43 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8501:8501"
-    volumes:
-      - .:/app
+      - "8501:8501"  # Expose Streamlit on port 8501
     depends_on:
-      - selenium-chrome
+      - ollama  # Ensure Ollama is running before starting the web app
+      - selenium-chrome  # Ensure Selenium is running before starting the web app
     environment:
       - PYTHONUNBUFFERED=1
-      - SBR_WEBDRIVER=http://selenium-chrome:4444/wd/hub
-    # Selenium Remote URL http://localhost:4444/wd/hub
-    command: streamlit run main.py
+      - OLLAMA_API_URL=http://ollama:11434  # Ollama service URL
+      - SBR_WEBDRIVER=http://selenium-chrome:4444/wd/hub  # WebDriver URL to Selenium Chrome
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - webnet  # Ensure it is on the same network
+    command: streamlit run main.py --server.port=8501 --server.address=0.0.0.0
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    ports:
+      - "11434:11434"  # Expose Ollama service port
+    volumes:
+      - ./ollama:/root/.ollama  # Persist Ollama models between runs
+    networks:
+      - webnet  # Add Ollama to the same network
+    environment:
+      - OLLAMA_KEEP_ALIVE=24h  # Keep Ollama running for extended periods
+    tty: true
+    restart: always
+
   selenium-chrome:
     image: selenium/standalone-chrome:latest
     container_name: selenium-chrome
     ports:
       - "4444:4444"  # Expose Selenium Grid port
     shm_size: '2gb'  # Shared memory size for Selenium
-
+    networks:
+      - webnet  # Add Selenium to the same network
 
 networks:
-  default:
-    driver: bridge
+  webnet:
+    driver: bridge  # Use a bridge network to allow inter-service communication
