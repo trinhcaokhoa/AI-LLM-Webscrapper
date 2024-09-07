@@ -40,5 +40,5 @@ Make sure you have the following installed on your system:
    ```bash
    docker-compose up --build
 
-   Open your browser and go to http://localhost:8501.
+  Open your browser and go to http://localhost:8501.
 
