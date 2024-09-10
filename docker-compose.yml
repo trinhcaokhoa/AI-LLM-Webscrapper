@@ -23,18 +23,18 @@ services:
 
   ollama:
     image: ollama/ollama:latest
+    container_name: ollama
     volumes:
       - ./ollama:/root/.ollama  # Persist Ollama models between runs
-    container_name: ollama
-    pull_policy: always
-    tty: true
-    restart: unless-stopped
-    ports:
-      - 11434:11434
-    environment:
-      - OLLAMA_KEEP_ALIVE=24h
+      - ./entrypoint.sh:/entrypoint.sh
     networks:
       - webnet
+    environment:
+      - OLLAMA_KEEP_ALIVE=24h
+    tty: true
+    restart: always
+    ports:
+      - "11434:11434"
     deploy:
       resources:
         reservations:
@@ -42,6 +42,9 @@ services:
             - driver: nvidia
               count: 1
               capabilities: [ gpu ]
+    entrypoint: ["/usr/bin/bash", "/entrypoint.sh"]
+
+
 
 
 
